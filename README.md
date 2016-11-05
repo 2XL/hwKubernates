@@ -10,8 +10,9 @@
 ```
 Services required for the current sample:
 
->Docker Engine
+>Docker Engine (localhost One node Testing)
 >AWS EC2
+
 
 Machine requirements:
 
@@ -111,6 +112,24 @@ curl -Lo kubectl http://storage.googleapis.com/kubernetes-release/release/v1.3.0
 kubectl run <app-name> --image=<image-name> --replicas=<#replicas> --port=<port> 
 # output: deployment "<app-name>" created 
 
+# Boostrap Kubernetes Service
+
+./start_etcd.sh
+./start_k8s_master.sh
+./start_service_proxy.sh
+
+
+
+## setup a service
+kubectl run nginx --image=nginx
+
+
+sudo docker ps
+## the list will contain the following containers:
+# container for the service proxy
+# container for the kubelet
+# container for the etcd
+# container for the master scheduler, controller, apiserver,pause
 
 ```
 
@@ -139,13 +158,73 @@ its management includes:
     * Dev and Ops separation of concerns.
     * Environmental consistency across development, testing and production.
     * Cloud and OS distribution portability
-    * Application-centric manageent
+    * Application-centric management
     * Loosely coupled, distributed, elastic, liberated micro-services.
     * Resource isolation
     * Resource utilization
     
+ * What is a Node?
+    node is a machine (physical or virtual) running kubernetes onto which pods may be scheduled.
+    the node could be the master node of one of the worker nodes.
 
-
+ * What is a Cluster?
+    is a collection of nodes including other resources such as storage to run k8s apps.
+    a cluster has a single k8s master node and zero or more worker nodes.
+    a highly available cluster consists of multiple masters or master nodes.
+ 
+ * What is a Pod? 
+    is a collection of containers that are collocated and form an atomic unit.
+    multiple apps may be run within a pod and though the different containers 
+    within a pod could be for the same app.
+ 
+ * What is a Service?
+    is a external interface for one or more pods providing endpoints at which the application
+    represented by the service may by invoked. a service is hosted at a single IP@ but
+    provides zero or more endpoints depending on the application interface by the service.
+    * services are connected to pods using label selectors.
+    * an external client only need to know the name of the service and the port at which a particular application is exposed.
+    * service can be used for load balancing.
+ 
+ * What is a Replication Controller?
+    it manages the representation level of pods as specified by the replicas setting in a replication controller defined or on the command line with replicas parameter.
+    a replica controller is used for scaling the pods within a cluster. 
+    a replica is defined at the pod level implying that if a pod consists of two containers
+    a group of the two configured containers constitute a replica.
+     
+ * What is a Label?
+    a label is a key-value pair identifying a resource such as a Pod, Service, ReplicaCtrl...
+    most commonly a Pod, they are used to identify a group or subset of resources for tasks 
+    such as assigning them to a Service.
+ 
+ * What is a Selector?
+    a selector is a key-value expression to identify resources using matching labels.
+ 
+ 
+ * What is a Name?
+    a name identifies a resource. a name is not the same as a label, a name is used for matching resources with a service a label is used and not a name.
+ 
+ * What is a Namespace?
+    a namespace is a level above the name to demarcate a group of resources for a project or team to prevent 
+    name collisions. resources within different ns could have the same name, but resources within a namespace have different names.
+ 
+ * What is a Volume?
+    a volume is a directory within the fs of a container. a volume could be used to store data.
+ 
+ * Why Kubernates?
+    come along to overcome the lacking features of Docker containers orchestration.
+    it provides a dynamic container cluster orchestration in real time. 
+    * node scheduling, which node to run a certain service...
+    * scaling, how to increase/decrease the number of running containers for an application
+    * communication, how to communicate within containers
+    it's a cluster manager which provides the following benefits:
+    * Micro-services: by breaking an application into smaller, manageable, scalable components that could be used by groups with different requirements.
+    * Fault-tolerant: clusters in which if a single pod replica fails (whatever motive), another is started automatically.
+    * Horizontal scaling: additional or fewer replicas of a pod could be run by just modifying the replicas settings in the replication controller or using the replicas parameter in the `kubectl scale` command
+    * Efficiency and Higher resource utilization
+    * Separation of concerns. The service development team does not need to interface with the cluster infrastructure team.
+ 
+ 
+ 
 
 ####
 
